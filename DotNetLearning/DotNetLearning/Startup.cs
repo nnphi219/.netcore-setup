@@ -21,6 +21,16 @@ namespace DotNetLearning
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowMyOrigin",
+                builder => builder
+                    .SetIsOriginAllowed((origin) => true)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                );
+            });
+
             services.AddControllers();
 
             services.AddDbContext<LearningDbContext>(opts =>
@@ -46,6 +56,8 @@ namespace DotNetLearning
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("AllowMyOrigin");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
