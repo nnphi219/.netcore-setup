@@ -1,4 +1,5 @@
 using DotNetLearning.Application.DBContexts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DotNetLearning
 {
@@ -51,6 +54,28 @@ namespace DotNetLearning
             })
             .AddEntityFrameworkStores<LearningDbContext>()
             .AddDefaultTokenProviders();
+
+            var key = Encoding.ASCII.GetBytes("Secret8BB2CAF5-60D5-44A6-82DA-B3066F5DF314");
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+            services.AddAuthorization(options =>
+            {
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
